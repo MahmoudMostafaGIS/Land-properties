@@ -372,25 +372,28 @@
                             listingCardTemplate.find('.ListingCard__listing-address').text(feature.properties.Street_Address);
                             listingCardTemplate.find('.ListingCard__listing-desc').text(feature.properties.Comments);
 
-                            listingCardTemplate.find('.FindMeControl__button__G7_Ek').attr('title', `Zoom to: <br/>${latitude},${longitude}`);
+                            listingCardTemplate.find('.FindMeControl__button__G7_Ek').attr('title', `Zoom to: ${latitude},${longitude}`);
                             listingCardTemplate.find('.FindMeControl__button__G7_Ek').attr('data-latitude', latitude);
                             listingCardTemplate.find('.FindMeControl__button__G7_Ek').attr('data-longitude', longitude);
 
                             $('#filters-scroll-container').append(listingCardTemplate);
                         }
+
                         $('[data-toggle="tooltip"]').tooltip({
                             placement: 'left',
-                            html: true,
+                            // html: true,
+                            trigger : 'hover'
+
                         })
                     }
-
+                    // class="ListingCard__listing-image-container__19p-X"
                     $(document).on('click', '.FindMeControl__button__G7_Ek', function () {
                         const latitude = $(this).attr('data-latitude');
                         const longitude = $(this).attr('data-longitude');
                         // console.log({latitude:latitude , longitude:longitude})
                         map.flyTo({
                             center: [longitude, latitude],
-                            zoom: 16
+                            zoom: 16.5
                         });
 
                         map.on('idle', function () {
