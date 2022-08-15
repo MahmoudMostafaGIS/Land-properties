@@ -26,7 +26,9 @@
             position: absolute;
             top: 0;
             bottom: 0;
-            width: 75%;
+            width: 69%;
+            display: flex;
+            justify-content: left;
         }
 
         /* Popup styling */
@@ -92,62 +94,86 @@
 </head>
 
 <body>
-<div id='sidebar-listings'>
-    <div class='ListingContainer__listing-container__2nOWW ListingContainer__auto-height__1OTIA'>
-        <div id="filters-scroll-container" class="ListingContainer__card-container__1H-k_" style="height: 100%;">
-            <div class="ListingContainer__listing-tool-menu__3DHAg" style="height: 3.75rem;">
-                <div class="ListingContainer__listing-toolbar__3n6WV" style="display: none;">
-                    <div class="ListingContainer__listing-title__1Cenm">Listings<br
-                            class="ListingContainer__listings-break__J7y8y"> (99+ results)
-                    </div>
-                    <div class="ListingContainer__listing-tools__1N9S5">
-                        <div tabindex="0" class="ListingContainer__per-page-dropdown-container__1ANfL"
-                             style="height: 38px; border: 1px solid rgb(84, 152, 163); padding: 2px 4px; color: white; border-radius: 5px;">
-                            <div class="ListingContainer__per-page-dropdown__33DhU">Per page: <br>10</div>
-                        </div>
-                        <div id="sortingContainer" tabindex="0"
-                             class="ListingContainer__per-page-dropdown-container__1ANfL"
-                             style="height: 38px; border: 1px solid rgb(84, 152, 163); padding: 2px 4px; color: white; border-radius: 5px; min-width: 73px;z-index: 11;">
-                            <div class="ListingContainer__per-page-dropdown__33DhU">Sort By: <br><span id="sortingDetails">Date (des)</span></div>
-                            <div class="ListingContainer__page-dropdown__mHfVE" style="min-width: 73px; display: none;">
-                                <ul>
-                                    <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)" data-default="true" data-active="true" data-sortby="Date" data-order="desc" data-details="Date (des)">
-                                        Date (des)
-                                    </li>
-                                    <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)" data-sortby="Date" data-order="asc" data-details="Date (asc)">
-                                        Date (asc)
-                                    </li>
-                                    <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)" data-sortby="Acres" data-order="desc" data-details="Acres (des)">
-                                        Acres (des)
-                                    </li>
-                                    <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)" data-sortby="Acres" data-order="asc" data-details="Acres (asc)">
-                                        Acres (asc)
-                                    </li>
-                                    <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)" data-sortby="Asking_Price" data-order="desc" data-details="Price (des)">
-                                        Price (des)
-                                    </li>
-                                    <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)" data-sortby="Asking_Price" data-order="asc" data-details="Price (asc)">
-                                        Price (asc)
-                                    </li>
-                                    <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)" data-sortby="$ac" data-order="desc" data-details="$/ac. (des)">
-                                        $/ac. (des)
-                                    </li>
-                                    <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)" data-sortby="$ac" data-order="asc" data-details="$/ac. (asc)">
-                                        $/ac. (asc)
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="ListingContainer__for-sale-toggle__bNYhT"><input id="toggle-left" type="radio"
-                                                                                     value="For Sale" checked=""><label
-                                for="toggle-left">For Sale</label><input id="toggle-right" type="radio"
-                                                                         value="Recently Sold"><label
-                                for="toggle-right">Recently Sold</label></div>
-                        <div class="ListingContainer__filters__3PUBd">Filters</div>
-                    </div>
+<div id="sidebar-listings" ng-class="{'listings-collapsed' : !mapService.showListingsSidebar}"
+     ng-style="{width: mapService.sidebarWidth}" class="ng-scope" style="width: 480px;">
+    <div class="ListingContainer__listing-container__2nOWW ListingContainer__full-height__BZUeG">
+        <div class="ListingContainer__listing-tool-menu__3DHAg ListingContainer__list-view__2ioMF"
+             style="height: 5rem;">
+            <div class="ListingContainer__listing-toolbar__3n6WV" style="display: flex;">
+                <div class="ListingContainer__listing-title__1Cenm">Listings<br
+                        class="ListingContainer__listings-break__J7y8y"> (<span id="listings_count">0</span> results)
                 </div>
-                <button class="ListingContainer__mapview-button__cFY82" style="margin-top: 2px;"><img
-                        class="ListingContainer__mapview-icon__3Wy_R" src="/static/images/list-icon-blue.svg"></button>
+                <div class="ListingContainer__listing-tools__1N9S5">
+                    <div tabindex="0" class="ListingContainer__per-page-dropdown-container__1ANfL"
+                         style="height: 38px; border: 1px solid rgb(84, 152, 163); padding: 2px 4px; color: white; border-radius: 5px;">
+                        <div class="ListingContainer__per-page-dropdown__33DhU">Per page: <br>10</div>
+                    </div>
+                    <div id="sortingContainer" tabindex="0" class="ListingContainer__per-page-dropdown-container__1ANfL"
+                         style="height: 38px; border: 1px solid rgb(84, 152, 163); padding: 2px 4px; color: white; border-radius: 5px; min-width: 73px;">
+                        <div class="ListingContainer__per-page-dropdown__33DhU">Sort By: <br><span id="sortingDetails">Date (des)</span></div>
+                        <div class="ListingContainer__page-dropdown__mHfVE" style="min-width: 73px; display: none; z-index: 11;">
+                            <ul>
+                                <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)"
+                                    data-default="true" data-active="true" data-sortby="Date" data-order="desc"
+                                    data-details="Date (des)">
+                                    Date (des)
+                                </li>
+                                <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)"
+                                    data-sortby="Date" data-order="asc" data-details="Date (asc)">
+                                    Date (asc)
+                                </li>
+                                <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)"
+                                    data-sortby="Acres" data-order="desc" data-details="Acres (des)">
+                                    Acres (des)
+                                </li>
+                                <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)"
+                                    data-sortby="Acres" data-order="asc" data-details="Acres (asc)">
+                                    Acres (asc)
+                                </li>
+                                <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)"
+                                    data-sortby="Asking_Price" data-order="desc" data-details="Price (des)">
+                                    Price (des)
+                                </li>
+                                <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)"
+                                    data-sortby="Asking_Price" data-order="asc" data-details="Price (asc)">
+                                    Price (asc)
+                                </li>
+                                <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)"
+                                    data-sortby="$ac" data-order="desc" data-details="$/ac. (des)">
+                                    $/ac. (des)
+                                </li>
+                                <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)"
+                                    data-sortby="$ac" data-order="asc" data-details="$/ac. (asc)">
+                                    $/ac. (asc)
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+                    <div class="ListingContainer__for-sale-toggle__bNYhT"><input id="toggle-left" type="radio"
+                                                                                 value="For Sale" checked=""><label
+                            for="toggle-left">For Sale</label><input id="toggle-right" type="radio"
+                                                                     value="Recently Sold"><label for="toggle-right">Recently
+                        Sold</label></div>
+                    <div class="ListingContainer__filters__3PUBd">Filters</div>
+                </div>
+            </div>
+            <button class="ListingContainer__mapview-button__cFY82" style=""><img
+                    class="ListingContainer__mapview-icon__3Wy_R" src="./static/images/map-icon-blue.svg"></button>
+        </div>
+        <div class="ListingContainer__card-container__1H-k_" id="filters-scroll-container" style="display: block;"></div>
+        <div class="ListingContainer__listing-footer__3D9xg" style="text-align: center; display: flex;">
+            <div class="ListingContainer__pagination__1NKZC" data-testid="page-selection-footer">
+                <div class="ListingContainer__prev__2fTJW ListingContainer__disabled__3W8Gr"><img
+                        src="./static/images/first_page_null.svg" style="height: 0.9rem;"></div>
+                <div class="ListingContainer__prev__2fTJW ListingContainer__disabled__3W8Gr"><img
+                        src="./static/images/prev_page_null.svg" style="height: 0.9rem;"></div>
+                <div class="ListingContainer__paginationItem__BiTfC ListingContainer__active__2W8ga"><span>1</span>
+                </div>
+                <div class="ListingContainer__next__2wBqa ListingContainer__disabled__3W8Gr"><img
+                        src="./static/images/next_page_null.svg" style="height: 0.9rem;"></div>
+                <div class="ListingContainer__next__2wBqa ListingContainer__disabled__3W8Gr"><img
+                        src="./static/images/last_page_null.svg" style="height: 0.9rem;"></div>
             </div>
         </div>
     </div>
@@ -426,7 +452,6 @@
                 });
 
             const activeSorting = $('li.ListingContainer__page-dropdown-choice__V_Hig[data-active=true]');
-            console.log(activeSorting)
             if (activeSorting.length > 0) {
                 sorting(activeSorting[0]);
             } else {
@@ -435,6 +460,8 @@
 
 
         }
+
+        $('#listings_count').text(currentViewPortFeatures.length);
 
 
         for (const feature of currentViewPortFeatures) {
