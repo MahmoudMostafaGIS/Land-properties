@@ -105,9 +105,38 @@
                              style="height: 38px; border: 1px solid rgb(84, 152, 163); padding: 2px 4px; color: white; border-radius: 5px;">
                             <div class="ListingContainer__per-page-dropdown__33DhU">Per page: <br>10</div>
                         </div>
-                        <div tabindex="0" class="ListingContainer__per-page-dropdown-container__1ANfL"
-                             style="height: 38px; border: 1px solid rgb(84, 152, 163); padding: 2px 4px; color: white; border-radius: 5px; min-width: 73px;">
-                            <div class="ListingContainer__per-page-dropdown__33DhU">Sort By: <br>Date (des)</div>
+                        <div id="sortingContainer" tabindex="0"
+                             class="ListingContainer__per-page-dropdown-container__1ANfL"
+                             style="height: 38px; border: 1px solid rgb(84, 152, 163); padding: 2px 4px; color: white; border-radius: 5px; min-width: 73px;z-index: 11;">
+                            <div class="ListingContainer__per-page-dropdown__33DhU">Sort By: <br><span id="sortingDetails">Date (des)</span></div>
+                            <div class="ListingContainer__page-dropdown__mHfVE" style="min-width: 73px; display: none;">
+                                <ul>
+                                    <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)" data-default="true" data-active="true" data-sortby="Date" data-order="desc" data-details="Date (des)">
+                                        Date (des)
+                                    </li>
+                                    <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)" data-sortby="Date" data-order="asc" data-details="Date (asc)">
+                                        Date (asc)
+                                    </li>
+                                    <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)" data-sortby="Acres" data-order="desc" data-details="Acres (des)">
+                                        Acres (des)
+                                    </li>
+                                    <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)" data-sortby="Acres" data-order="asc" data-details="Acres (asc)">
+                                        Acres (asc)
+                                    </li>
+                                    <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)" data-sortby="Asking_Price" data-order="desc" data-details="Price (des)">
+                                        Price (des)
+                                    </li>
+                                    <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)" data-sortby="Asking_Price" data-order="asc" data-details="Price (asc)">
+                                        Price (asc)
+                                    </li>
+                                    <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)" data-sortby="$ac" data-order="desc" data-details="$/ac. (des)">
+                                        $/ac. (des)
+                                    </li>
+                                    <li class="ListingContainer__page-dropdown-choice__V_Hig" onclick="sorting(this)" data-sortby="$ac" data-order="asc" data-details="$/ac. (asc)">
+                                        $/ac. (asc)
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                         <div class="ListingContainer__for-sale-toggle__bNYhT"><input id="toggle-left" type="radio"
                                                                                      value="For Sale" checked=""><label
@@ -203,6 +232,8 @@
                 : url
         };
     };
+    let currentViewPortFeatures = [];
+    let allFeatures = [];
 
     mapboxgl.accessToken = 'pk.eyJ1IjoidHRlcmFzaSIsImEiOiJjbDZwZnFrcGowa2JzM2NsZW9wdWY0MGNiIn0.P99U4K4f5olTpPUDCm1dbg';
     const map = new mapboxgl.Map({
@@ -216,6 +247,17 @@
     map.addControl(nav, 'top-left');
 
     $(document).ready(function () {
+        $(document).on("click", function (event) {
+            const $trigger = $("#sortingContainer");
+            if ($trigger !== $(event.target) && !$trigger.has(event.target).length) {
+                $(".ListingContainer__page-dropdown__mHfVE").hide();
+            }
+        });
+
+        $('#sortingContainer').click(function () {
+            $(this).find('.ListingContainer__page-dropdown__mHfVE').toggle();
+        });
+
         $.ajax({
             type: "GET",
             url: 'https://docs.google.com/spreadsheets/d/1-0GuKJF-AaP9Zb2ZTM12EyCdFUxLlxn4C_Z_dn5w6_E/gviz/tq?tqx=out:csv&sheet=Available_sold_properties',
@@ -230,6 +272,8 @@
                 lonfield: 'Longitude',
                 delimiter: ','
             }, function (err, data) {
+                allFeatures = data;
+
                 map.on('load', function () {
                     map.addSource('sourceData', {
                         type: 'geojson',
@@ -350,39 +394,6 @@
                     map.on('dragend', appendFeaturesCards)
                         .on('zoomend', appendFeaturesCards);
 
-                    function appendFeaturesCards() {
-                        $('#filters-scroll-container').find('.ListingCard__listing-card__2sTZ1').remove();
-
-                        const currentViewFeatures = map.queryRenderedFeatures({layers: ['csvData']}).filter((value, index, self) => index === self.findIndex((t) => t.properties.ID === value.properties.ID));
-                        for (const feature of currentViewFeatures) {
-                            const featureData = data.features.find(f => f.properties.ID === feature.properties.ID);
-                            const latitude = featureData.geometry.coordinates[1];
-                            const longitude = featureData.geometry.coordinates[0];
-                            const listingCardTemplate = $($('#listing-card-template').html()).clone();
-
-                            listingCardTemplate.find('.ListingCard__listing-header-date').text(moment(feature.properties.Date).format('YYYY-MM-DD'));
-                            listingCardTemplate.find('.ListingCard__listing-header-price').text(feature.properties.Asking_Price);
-                            listingCardTemplate.find('.ListingCard__listing-header-acres').text(`${feature.properties.Acres} ac.`);
-                            listingCardTemplate.find('.ListingCard__listing-header-county-state').text(`${feature.properties.County}, ${feature.properties.State}`);
-                            listingCardTemplate.find('.ListingCard__listing-status').text(`Status: ${feature.properties.Status.toUpperCase()}`);
-                            listingCardTemplate.find('.ListingCard__listing-address').text(feature.properties.Street_Address);
-                            listingCardTemplate.find('.ListingCard__listing-desc').text(feature.properties.Comments);
-
-                            listingCardTemplate.find('.FindMeControl__button__G7_Ek').attr('title', `Zoom to: <br/>${latitude}, ${longitude}`);
-                            listingCardTemplate.find('.FindMeControl__button__G7_Ek').attr('data-latitude', latitude);
-                            listingCardTemplate.find('.FindMeControl__button__G7_Ek').attr('data-longitude', longitude);
-
-                            $('#filters-scroll-container').append(listingCardTemplate);
-                        }
-
-                        $('[data-toggle="tooltip"]').tooltip({
-                            placement: 'left',
-                            // html: true,
-                            trigger : 'hover'
-
-                        })
-                    }
-                    // class="ListingCard__listing-image-container__19p-X"
                     $(document).on('click', '.FindMeControl__button__G7_Ek', function () {
                         const latitude = $(this).attr('data-latitude');
                         const longitude = $(this).attr('data-longitude');
@@ -391,17 +402,124 @@
                             center: [longitude, latitude],
                             zoom: 16.5
                         });
+                    });
 
-                        map.on('idle', function () {
-                            appendFeaturesCards();
-                        });
-                    })
-                });
+                    map.on('idle', function () {
+                        appendFeaturesCards();
+                    });
 
+
+                })
             });
         }
     });
 
+    function appendFeaturesCards(features) {
+        $('#filters-scroll-container').find('.ListingCard__listing-card__2sTZ1').remove();
+
+        if (!features) {
+            currentViewPortFeatures = map.queryRenderedFeatures({layers: ['csvData']})
+                .filter((value, index, self) => index === self.findIndex((t) => t.properties.ID === value.properties.ID))
+                .map(f => {
+                    f.properties.$ac = (Number(f.properties.Asking_Price.replace(/[^0-9.-]+/g, "")) / f.properties.Acres).toFixed(2);
+                    return f;
+                });
+
+            const activeSorting = $('li.ListingContainer__page-dropdown-choice__V_Hig[data-active=true]');
+            console.log(activeSorting)
+            if (activeSorting.length > 0) {
+                sorting(activeSorting[0]);
+            } else {
+                sorting($('li.ListingContainer__page-dropdown-choice__V_Hig[data-default=true]')[0]);
+            }
+
+
+        }
+
+
+        for (const feature of currentViewPortFeatures) {
+            const featureData = allFeatures.features.find(f => f.properties.ID === feature.properties.ID);
+            const latitude = featureData.geometry.coordinates[1];
+            const longitude = featureData.geometry.coordinates[0];
+            const listingCardTemplate = $($('#listing-card-template').html()).clone();
+
+            listingCardTemplate.find('.ListingCard__listing-header-date').text(moment(feature.properties.Date).format('YYYY-MM-DD'));
+            listingCardTemplate.find('.ListingCard__listing-header-price').text(feature.properties.Asking_Price);
+            listingCardTemplate.find('.ListingCard__listing-header-acres').text(`${feature.properties.Acres} ac.`);
+            listingCardTemplate.find('.ListingCard__listing-header-county-state').text(`${feature.properties.County}, ${feature.properties.State}`);
+            listingCardTemplate.find('.ListingCard__listing-status').text(`Status: ${feature.properties.Status.toUpperCase()}`);
+            listingCardTemplate.find('.ListingCard__listing-address').text(feature.properties.Street_Address);
+            listingCardTemplate.find('.ListingCard__listing-desc').text(feature.properties.Comments);
+
+            listingCardTemplate.find('.FindMeControl__button__G7_Ek').attr('title', `Zoom to: <br/>${latitude}, ${longitude}`);
+            listingCardTemplate.find('.FindMeControl__button__G7_Ek').attr('data-latitude', latitude);
+            listingCardTemplate.find('.FindMeControl__button__G7_Ek').attr('data-longitude', longitude);
+
+            $('#filters-scroll-container').append(listingCardTemplate);
+        }
+
+        $('[data-toggle="tooltip"]').tooltip({
+            placement: 'left',
+            html: true,
+            trigger: 'hover'
+
+        })
+    }
+
+    function sorting(element) {
+        $(element).siblings().attr('data-active', "false");
+        $(element).attr('data-active', "true");
+        const sortBy = element.dataset.sortby;
+        const sortOrder = element.dataset.order;
+        const sortingDetails = element.dataset.details;
+
+        $('#sortingDetails').text(sortingDetails);
+        if (sortBy === 'Asking_Price') {
+            currentViewPortFeatures.sort((a, b) => {
+                if (sortOrder === 'asc') {
+                    return Number(a.properties.Asking_Price.replace(/[^0-9.-]+/g, "")) - Number(b.properties.Asking_Price.replace(/[^0-9.-]+/g, ""));
+                } else {
+                    return Number(b.properties.Asking_Price.replace(/[^0-9.-]+/g, "")) - Number(a.properties.Asking_Price.replace(/[^0-9.-]+/g, ""));
+                }
+            });
+        } else if (sortBy === 'Acres') {
+            currentViewPortFeatures.sort((a, b) => {
+                if (sortOrder === 'asc') {
+                    return a.properties.Acres - b.properties.Acres;
+                } else {
+                    return b.properties.Acres - a.properties.Acres;
+                }
+            });
+        } else if (sortBy === 'Date') {
+            currentViewPortFeatures.sort((a, b) => {
+                if (sortOrder === 'asc') {
+                    return new Date(a.properties.Date) - new Date(b.properties.Date);
+                } else {
+                    return new Date(b.properties.Date) - new Date(a.properties.Date);
+                }
+            });
+        } else if (sortBy === '$ac') {
+            currentViewPortFeatures.sort((a, b) => {
+                if (sortOrder === 'asc') {
+                    return a.properties.$ac - b.properties.$ac;
+                } else {
+                    return b.properties.$ac - a.properties.$ac;
+                }
+            });
+        }
+        console.log(currentViewPortFeatures)
+        appendFeaturesCards(currentViewPortFeatures);
+        // // Price Low To High
+        // features?.sort((a, b) => (a.price > b.price ? 1 : -1))
+        // // Price High To Low
+        // features?.sort((a, b) => (a.price > b.price ? -1 : 1))
+        // // Name A to Z
+        // features?.sort((a, b) => (a.name > b.name ? 1 : 1))
+        // // Name Z to A
+        // features?.sort((a, b) => (a.name > b.name ? -1 : 1))
+        // // Sort by date
+        // features.sort((a,b) =>  new Date(b.date) - new Date(a.date));
+    }
 
 </script>
 
